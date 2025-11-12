@@ -1,0 +1,16 @@
+{
+  "name": "compra-certa-monorepo",
+  "private": true,
+  "scripts": {
+    "dev": "turbo dev --parallel",
+    "build": "turbo build",
+    "lint": "turbo lint"
+  },
+  "devDependencies": {
+    "turbo": "latest"
+  },
+  "workspaces": [
+    "apps/*"
+  ],
+  "packageManager": "npm@10.1.0"
+}
