@@ -171,6 +171,7 @@ const ProductForm = ({ open, onClose, onSave, product }: ProductFormProps) => {
               <Select
                 value={formData.plataforma}
                 onValueChange={(value) => setFormData({ ...formData, plataforma: value })}
+                required
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Selecione a plataforma" />
@@ -190,6 +191,7 @@ const ProductForm = ({ open, onClose, onSave, product }: ProductFormProps) => {
               <Select
                 value={formData.categoria}
                 onValueChange={(value) => setFormData({ ...formData, categoria: value })}
+                required
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Selecione a categoria" />
