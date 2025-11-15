@@ -1,12 +1,14 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Plus, Package, TrendingUp, LogOut } from "lucide-react";
+import { Plus, Package, TrendingUp, LogOut, Loader2 } from "lucide-react";
 import ProductTable from "@/components/ProductTable";
 import ProductForm from "@/components/ProductForm";
 import { toast } from "sonner";
+import api from "@/services/api";
 
+// Interface alinhada com o backend
 export interface Product {
   id?: number;
   titulo_exibicao: string;
@@ -22,50 +24,37 @@ export interface Product {
 
 const Dashboard = () => {
   const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const navigate = useNavigate();
 
   useEffect(() => {
-    const isAuthenticated = localStorage.getItem("admin_authenticated");
-    if (!isAuthenticated) {
+    const token = localStorage.getItem("admin_token");
+    if (!token) {
       navigate("/login");
     }
   }, [navigate]);
 
-  useEffect(() => {
-    // Simulação de carregamento de dados (substituir por chamada à API)
-    const mockData: Product[] = [
-      {
-        id: 1,
-        titulo_exibicao: "Notebook Dell Inspiron",
-        descricao_curta: "Intel Core i5, 8GB RAM, SSD 256GB",
-        url_imagem: "https://images.unsplash.com/photo-1588872657578-7efd1f1555ed?w=400",
-        link_afiliado_final: "https://amzn.to/example1",
-        slug_personalizado: "notebook-dell-inspiron",
-        preco_exibicao: "R$ 3.499,00",
-        plataforma: "Amazon",
-        categoria: "Informática",
-        em_destaque: true,
-      },
-      {
-        id: 2,
-        titulo_exibicao: "Fone Bluetooth Sony",
-        descricao_curta: "Cancelamento de ruído ativo, 30h de bateria",
-        url_imagem: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400",
-        link_afiliado_final: "https://amzn.to/example2",
-        slug_personalizado: "fone-sony-bluetooth",
-        preco_exibicao: "R$ 899,00",
-        plataforma: "Mercado Livre",
-        categoria: "Eletrônicos",
-        em_destaque: false,
-      },
-    ];
-    setProducts(mockData);
+  const fetchProducts = useCallback(async () => {
+    setLoading(true);
+    try {
+      const response = await api.get('/products');
+      setProducts(response.data);
+    } catch (error) {
+      toast.error("Falha ao carregar produtos.");
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
+  useEffect(() => {
+    fetchProducts();
+  }, [fetchProducts]);
+
   const handleLogout = () => {
-    localStorage.removeItem("admin_authenticated");
+    localStorage.removeItem("admin_token");
     toast.success("Logout realizado");
     navigate("/login");
   };
@@ -80,20 +69,31 @@ const Dashboard = () => {
     setIsFormOpen(true);
   };
 
-  const handleDeleteProduct = (id: number) => {
-    setProducts(products.filter(p => p.id !== id));
-    toast.success("Produto excluído com sucesso!");
+  const handleDeleteProduct = async (id: number) => {
+    try {
+      await api.delete(`/products/${id}`);
+      toast.success("Produto excluído com sucesso!");
+      fetchProducts(); // Re-fetch
+    } catch (error) {
+      toast.error("Falha ao excluir produto.");
+    }
   };
 
-  const handleSaveProduct = (product: Product) => {
-    if (editingProduct) {
-      setProducts(products.map(p => p.id === editingProduct.id ? { ...product, id: editingProduct.id } : p));
-      toast.success("Produto atualizado com sucesso!");
-    } else {
-      setProducts([...products, { ...product, id: Date.now() }]);
-      toast.success("Produto adicionado com sucesso!");
+  const handleSaveProduct = async (productData: Omit<Product, 'id'>) => {
+    try {
+      if (editingProduct && editingProduct.id) {
+        await api.put(`/products/${editingProduct.id}`, productData);
+        toast.success("Produto atualizado com sucesso!");
+      } else {
+        await api.post('/products', productData);
+        toast.success("Produto adicionado com sucesso!");
+      }
+      setIsFormOpen(false);
+      fetchProducts(); // Re-fetch
+    } catch (error: any) {
+      const errorMessage = error.response?.data?.error || "Falha ao salvar produto.";
+      toast.error(errorMessage);
     }
-    setIsFormOpen(false);
   };
 
   const activeProducts = products.length;
@@ -166,11 +166,17 @@ const Dashboard = () => {
             </div>
           </CardHeader>
           <CardContent>
-            <ProductTable
-              products={products}
-              onEdit={handleEditProduct}
-              onDelete={handleDeleteProduct}
-            />
+            {loading ? (
+              <div className="flex justify-center items-center h-40">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+              </div>
+            ) : (
+              <ProductTable
+                products={products}
+                onEdit={handleEditProduct}
+                onDelete={handleDeleteProduct}
+              />
+            )}
           </CardContent>
         </Card>
       </main>

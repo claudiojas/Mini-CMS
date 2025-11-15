@@ -24,7 +24,7 @@ import { Product } from "@/pages/Dashboard";
 interface ProductFormProps {
   open: boolean;
   onClose: () => void;
-  onSave: (product: Product) => void;
+  onSave: (product: Omit<Product, 'id'>) => void;
   product: Product | null;
 }
 
@@ -32,7 +32,7 @@ const plataformas = ["Amazon", "Mercado Livre", "Magazine Luiza", "Americanas", 
 const categorias = ["Eletrônicos", "Informática", "Casa", "Moda", "Esportes", "Livros", "Brinquedos", "Beleza"];
 
 const ProductForm = ({ open, onClose, onSave, product }: ProductFormProps) => {
-  const [formData, setFormData] = useState<Product>({
+  const [formData, setFormData] = useState<Omit<Product, 'id'>>({
     titulo_exibicao: "",
     descricao_curta: "",
     url_imagem: "",
@@ -77,10 +77,11 @@ const ProductForm = ({ open, onClose, onSave, product }: ProductFormProps) => {
   };
 
   const handleTitleChange = (value: string) => {
-    setFormData({ ...formData, titulo_exibicao: value });
-    if (!product) {
-      setFormData(prev => ({ ...prev, slug_personalizado: generateSlug(value) }));
+    const newFormData = { ...formData, titulo_exibicao: value };
+    if (!product) { // Apenas gera slug para novos produtos
+      newFormData.slug_personalizado = generateSlug(value);
     }
+    setFormData(newFormData);
   };
 
   return (
@@ -170,7 +171,6 @@ const ProductForm = ({ open, onClose, onSave, product }: ProductFormProps) => {
               <Select
                 value={formData.plataforma}
                 onValueChange={(value) => setFormData({ ...formData, plataforma: value })}
-                required
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Selecione a plataforma" />
@@ -190,7 +190,6 @@ const ProductForm = ({ open, onClose, onSave, product }: ProductFormProps) => {
               <Select
                 value={formData.categoria}
                 onValueChange={(value) => setFormData({ ...formData, categoria: value })}
-                required
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Selecione a categoria" />

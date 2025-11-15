@@ -1,6 +1,8 @@
 import express, { Express } from 'express';
 import 'dotenv/config';
 import cors from 'cors';
+import authRoutes from './routes/AuthRoutes';
+import productRoutes from './routes/ProductRoutes';
 
 class App {
   public app: Express;
@@ -25,7 +27,9 @@ class App {
       res.status(200).send('API Hub-Link está no ar!');
     });
 
-    // As rotas da aplicação (ex: produtos, usuários) serão registradas aqui.
+    // Rotas da aplicação
+    this.app.use('/auth', authRoutes);
+    this.app.use('/products', productRoutes);
   }
 }
 

@@ -9,19 +9,31 @@ Painel de administração para o Compra Certa.
 - React
 - shadcn-ui
 - Tailwind CSS
+- Axios
+- React Query
+
+## Configuração
+
+Antes de iniciar, você precisa configurar a variável de ambiente para a URL da API.
+
+1.  Crie um arquivo chamado `.env.development` na raiz deste diretório (`apps/admin-hub`).
+2.  Adicione o seguinte conteúdo ao arquivo:
+
+    ```env
+    VITE_API_BASE_URL=http://localhost:3000
+    ```
 
 ## Como rodar localmente
 
+Certifique-se de que a [API (`api-hub-link`)](../api-hub-link/README.md) esteja rodando.
+
 ```sh
-# 1. Clone o repositório
-git clone <URL_DO_SEU_REPO>
-
-# 2. Navegue até a pasta do projeto
-cd compraCerta
-
-# 3. Instale as dependências
+# 1. A partir da raiz do monorepo (ex: /compraCerta)
+# 2. Instale as dependências
 npm install
 
-# 4. Inicie o servidor de desenvolvimento
+# 3. Inicie todos os serviços (incluindo este)
 npm run dev
 ```
+
+O Admin Hub estará disponível em `http://localhost:8080`.

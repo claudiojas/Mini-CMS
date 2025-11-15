@@ -1,5 +1,11 @@
 # Compra Certa - Hub de Ofertas
 
+## Status do Projeto (Desenvolvimento)
+
+- ✅ **Backend (`api-hub-link`):** 100% funcional. Todos os endpoints para autenticação e gerenciamento de produtos estão implementados e operacionais.
+- ✅ **Painel Admin (`admin-hub`):** 100% funcional. O painel está totalmente integrado com o backend, permitindo login e o CRUD completo de produtos.
+- ⏳ **Vitrine Pública (`frontend-publico`):** Em desenvolvimento. Próximo passo é conectar a vitrine à API para exibir os produtos aos usuários finais.
+
 ## Motivação
 
 Muitos programas de afiliados, embora excelentes para monetização, não oferecem APIs robustas para listar e gerenciar produtos de forma programática. Isso cria um desafio para quem deseja construir uma experiência de curadoria de ofertas personalizada, ágil e eficiente.
