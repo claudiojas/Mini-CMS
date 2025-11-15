@@ -1,4 +1,4 @@
-import { ExternalLink, Star } from "lucide-react";
+import { ExternalLink, Star, Zap } from "lucide-react";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -8,8 +8,6 @@ interface ProductCardProps {
   title: string;
   image: string;
   platform: string;
-  badge?: "Top CB" | "Testado" | "Promoção";
-  rating?: number;
   link: string;
   featured?: boolean;
 }
@@ -18,13 +16,11 @@ export function ProductCard({
   title,
   image,
   platform,
-  badge,
-  rating,
   link,
   featured = false,
 }: ProductCardProps) {
   return (
-    <Card className={`group overflow-hidden transition-all duration-300 hover:shadow-card-hover ${featured ? 'border-secondary border-2' : ''}`}>
+    <Card className={`group overflow-hidden transition-all duration-300 hover:shadow-card-hover ${featured ? 'border-primary border-2' : ''}`}>
       <CardContent className="p-0">
         <div className="relative aspect-square overflow-hidden bg-muted">
           <img
@@ -33,12 +29,13 @@ export function ProductCard({
             className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
             loading="lazy"
           />
-          {badge && (
+          {featured && (
             <Badge 
-              variant={badge === "Top CB" ? "warning" : badge === "Testado" ? "success" : "secondary"}
+              variant="warning"
               className="absolute top-3 right-3 shadow-md"
             >
-              {badge}
+              <Zap className="h-3 w-3 mr-1" />
+              Destaque
             </Badge>
           )}
         </div>
@@ -50,12 +47,6 @@ export function ProductCard({
           
           <div className="flex items-center justify-between text-sm">
             <span className="text-muted-foreground">{platform}</span>
-            {rating && (
-              <div className="flex items-center gap-1">
-                <Star className="h-4 w-4 fill-accent text-accent" />
-                <span className="font-medium">{rating.toFixed(1)}</span>
-              </div>
-            )}
           </div>
         </div>
       </CardContent>
