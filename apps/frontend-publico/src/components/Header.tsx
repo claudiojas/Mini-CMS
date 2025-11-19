@@ -12,7 +12,7 @@ export function Header({ onSearch }: HeaderProps) {
       <div className="container max-w-4xl mx-auto px-4 py-6">
         <div className="flex flex-col items-center justify-center">
           <a href="/" className="flex flex-col items-center justify-center">
-            <div className="flex items-center justify-center">
+            <div className="flex flex-col md:flex-row items-center justify-center">
               <img src={logo} alt="PassaoLink.com.br Logo" className="h-40" />
               <p className="text-sm md:text-base text-muted-foreground mt-1">
                 <p className="text-3xl text-green-700 font-semibold">PassaoLink.com.br</p>
