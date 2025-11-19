@@ -21,12 +21,12 @@ export function Header({ onSearch }: HeaderProps) {
             </div>
           </a>
           
-          <div className="w-full max-w-md relative">
-            <Search className="absolute left-10 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <div className="w-full max-w-md relative mt-6">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
               type="search"
               placeholder="Buscar produtos..."
-              className="pl-10"
+              className="pl-10 focus-visible:ring-green-700"
               onChange={(e) => onSearch(e.target.value)}
               aria-label="Buscar produtos"
             />
