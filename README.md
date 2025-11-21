@@ -34,62 +34,27 @@ Com essa arquitetura, temos total controle sobre os dados, a performance e a exp
 
 ## Arquitetura e Deploy
 
-A aplicação é implantada na [Vercel](https://vercel.com), utilizando uma arquitetura serverless e otimizada para monorepos.
+A aplicação é hospedada na [Vercel](https://vercel.com), com o gerenciamento de DNS, segurança (proxy) e e-mails feito pela [Cloudflare](https://www.cloudflare.com).
 
-### Estrutura na Vercel
+### Estrutura
 
-O monorepo é configurado na Vercel importando cada um dos três aplicativos como um **projeto separado**:
+1.  **DNS e Proxy (Cloudflare):** A Cloudflare gerencia os registros DNS do domínio. Ela atua como um proxy, oferecendo segurança, cache e o serviço de redirecionamento de e-mail.
+2.  **Hospedagem (Vercel):** A Vercel hospeda os três projetos (`api-hub-link`, `admin-hub`, `frontend-publico`), cada um como um projeto separado em sua plataforma.
+3.  **Banco de Dados (Vercel Postgres):** O banco de dados PostgreSQL é hospedado na Vercel, utilizando o serviço Vercel Postgres (via Neon).
 
-1.  **`api-hub-link`**: O projeto da API, que roda como Vercel Functions.
-2.  **`admin-hub`**: O projeto do painel administrativo (frontend).
-3.  **`frontend-publico`**: O projeto da vitrine pública (frontend).
+### Processo de Deploy
 
-Essa abordagem permite que cada aplicação tenha seu próprio ciclo de deploy, domínio e variáveis de ambiente.
+1.  **Configuração do Domínio:**
+    *   O domínio é adicionado à Cloudflare.
+    *   Os **Servidores de Nome (Nameservers)** no provedor de registro (ex: `registro.br`) são alterados para os da Cloudflare.
+    *   Os registros `A` e `CNAME` fornecidos pela Vercel para cada projeto são adicionados no painel de DNS da Cloudflare, com o modo proxy (nuvem laranja) ativado.
 
-### Configurações Chave
+2.  **Redirecionamento de E-mail:**
+    *   Configurado na seção "Email" -> "Email Routing" da Cloudflare para redirecionar e-mails do domínio personalizado para uma caixa de entrada existente (ex: Gmail).
 
-#### 1. Migração do Banco de Dados (Prisma)
-
-Para garantir que o banco de dados seja migrado automaticamente a cada deploy da API, o `apps/api-hub-link/package.json` contém um script `postbuild`:
-
-```json
-"scripts": {
-  "build": "tsc",
-  "postbuild": "npx prisma migrate deploy",
-  "start": "node dist/server.js"
-}
-```
-
-Para que este script funcione no ambiente da Vercel, o arquivo `turbo.json` na raiz do projeto foi configurado para expor a variável `DATABASE_URL` durante o build:
-
-```json
-{
-  "globalEnv": ["DATABASE_URL"]
-}
-```
-
-#### 2. Roteamento de Aplicações de Página Única (SPA)
-
-Os frontends (`admin-hub` e `frontend-publico`) são SPAs feitas com React/Vite. Para que o roteamento de cliente funcione corretamente (evitando erros 404 ao recarregar a página), um arquivo `vercel.json` foi adicionado a cada um deles (`apps/admin-hub/vercel.json` e `apps/frontend-publico/vercel.json`) com a seguinte regra:
-
-```json
-{
-  "routes": [
-    {
-      "src": "/[^.]+",
-      "dest": "/index.html",
-      "status": 200
-    }
-  ]
-}
-```
-
-#### 3. Variáveis de Ambiente
-
-As seguintes variáveis de ambiente precisam ser configuradas nos respectivos projetos na Vercel:
-
--   **Projeto `api-hub-link`**:
-    -   `DATABASE_URL`: A string de conexão com o banco de dados PostgreSQL (ex: obtida do Neon, Supabase, ou Vercel Postgres).
-
--   **Projetos `admin-hub` e `frontend-publico`**:
-    -   `VITE_API_BASE_URL`: A URL de produção da API implantada (ex: `https://sua-api.vercel.app`).
+3.  **Configurações na Vercel:**
+    *   **Migração do Banco de Dados (Prisma):** O `apps/api-hub-link/package.json` contém um script `postbuild` (`npx prisma migrate deploy`) e o `turbo.json` está configurado com `"globalEnv": ["DATABASE_URL"]` para permitir que a migração ocorra durante o build.
+    *   **Roteamento de SPA:** Os projetos de frontend (`admin-hub` e `frontend-publico`) contêm um arquivo `vercel.json` para redirecionar todas as rotas para o `index.html`, evitando erros 404.
+    *   **Variáveis de Ambiente:**
+        *   `api-hub-link`: `DATABASE_URL`
+        *   `admin-hub` & `frontend-publico`: `VITE_API_BASE_URL`
